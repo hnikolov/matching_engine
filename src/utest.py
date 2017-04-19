@@ -5,13 +5,41 @@ from MatchingEngine import MatchingEngine
 
 from utils import *
 
-# TESTS --------------
+# Tets Functions --------------
+def utest_CheckOrders():
+    print '-- CheckOrders function --',
+    o1, o2  = [Order(BID,  999, 123.45,  100, 100) for _ in range(2)]
+    checkOrders(o1, o2)
+    o1, o2  = [Order(ASK, 9191,  32.54, 1000, 100) for _ in range(2)] # icebergs
+    checkOrders(o1, o2)
+    print 'OK'
+
+
+def utest_CheckLevels():
+    print '-- CheckLevels function --',
+    l1, l2 = [Level() for i in range(2)]
+    b1, a1 = createOrders()
+    l1.addOrder(b1)
+    l1.addOrder(a1)
+    b2, a2 = createOrders()
+    l2.addOrder(b2)
+    l2.addOrder(a2)
+    checkLevels(l1, l2)
+    print 'OK'
+
+
+def utest_CheckSides():
+    print '-- CheckSides function --',
+    print 'OK'
+
+
 def utest_CheckBooks():
     print '-- CheckBooks function --',
     book_1, book_2 = [ createBook() for _ in range(2) ]
     checkBooks( book_1, book_2 )
     print 'OK'
     
+# Test Components --------------
 
 def utest_FifoDeque():
     print '-- FifoDeque --',
@@ -51,16 +79,16 @@ def utest_FifoDeque():
 def utest_Order():    
     print '-- Order --',
     o  = Order(    BID,         999, 123.45,  100, 100)
-    checkOrder(o,  True, False, 999, 123.45,  100, 100, 100)
+    checkOrder(o,  True, False, 999, 123.45,  100, 100)
 
     o1 = Order(    BID,        9191,  32.54, 1000, 100) # iceberg
-    checkOrder(o1, True, True, 9191,  32.54, 1000, 100, 100)
+    checkOrder(o1, True, True, 9191,  32.54, 1000, 100)
 
     o2 = Order(    ASK,          999, 123.45,  100, 100)
-    checkOrder(o2, False, False, 999, 123.45,  100, 100, 100)
+    checkOrder(o2, False, False, 999, 123.45,  100, 100)
 
     o3 = Order(    ASK,         9191, 324,    1000, 100) # iceberg
-    checkOrder(o3, False, True, 9191, 324,    1000, 100, 100)
+    checkOrder(o3, False, True, 9191, 324,    1000, 100)
     
     print 'OK'
     
@@ -113,12 +141,28 @@ def utest_Level():
     l.remove(999)
     assert l.isEmpty() == True, "Level is not empty!"
         
-# TODO Use checkLevels()
-#    o1 = Order(ASK, 12,  32.54, 200, 100) # iceberg
-#    l.addOrder(o1)
-#
-#    o1 = Order(ASK, 21,  67.89, 201, 100) # iceberg
-#    l.addOrder(o1)
+    print
+    o1 = Order(ASK, 1,  67.89, 99, 100)
+    l.addOrder(o1)
+    o1 = Order(ASK, 2,  67.89, 100, 100)
+    l.addOrder(o1)
+    o1 = Order(ASK, 3,  67.89, 101, 100) # iceberg
+    l.addOrder(o1)
+    assert len(l.visible_orders) == 3, "Wrong Level len! Expected: 3"
+    assert len(l.icebergs)       == 1, "Wrong Level len! Expected: 1"
+
+    l.remove(1)
+    l.remove(2)
+    l.remove(3)
+    assert l.isEmpty() == True, "Level is not empty!"
+
+    # Solved issue with 'iceberg' boundaries
+    o1 = Order(ASK, 12,  32.54, 200, 100) # iceberg
+    l.addOrder(o1)
+    o1 = Order(ASK, 21,  67.89, 201, 100) # iceberg
+    l.addOrder(o1)
+    assert len(l.visible_orders) == 2, "Wrong Level len! Expected: 2"
+    assert len(l.icebergs)       == 2, "Wrong Level len! Expected: 2"
 
     print 'OK'
 
@@ -281,10 +325,9 @@ def utest_MatchingEngine_5():
     assert m.myBook.isEmpty() == True,  "Book not empty!"
 
 def utest_MatchingEngine_14():    
-    print '-- Matching Engine --'
+    print '-- Matching Engine: Example 1 --'
     m = MatchingEngine()
 
-# Example:
     m.addOrder(ASK, 1, 56.5,  9000,  2000) 
     m.addOrder(ASK, 2, 56.5,  3000,  3000) 
     m.addOrder(ASK, 3, 56.6, 20000, 20000) 
@@ -292,19 +335,36 @@ def utest_MatchingEngine_14():
     
     m.addOrder(BID, 4, 56.6, 8000, 8000) 
     m.myBook.show()
-    
+
+    # Expected Book state
     b = Book()
     b.addOrder(ASK, 1, 56.5,  4000,  2000)
     b.addOrder(ASK, 3, 56.6, 20000, 20000) 
-#    b.show()
     checkBooks( m.myBook, b )
     
-# Another Example: TODO
+    print 'OK'
+
+def utest_MatchingEngine_15():
+    print '-- Matching Engine: Example 2 --'
+    m = MatchingEngine()
+
+    m.addOrder(ASK, 1, 20, 10000, 100)
+    m.addOrder(ASK, 2, 20, 10000, 200)
+
+    m.addOrder(BID, 3, 20, 10300, 100)
+
+    # Expected Book state
+    b = Book()
+    b.addOrder(ASK, 2, 20,  9700,  200)
+    checkBooks( m.myBook, b )
     
     print 'OK'
+
     
 if __name__ == '__main__':
 
+    utest_CheckOrders()
+    utest_CheckLevels()
     utest_FifoDeque()
     utest_Order()
     utest_Level()
@@ -316,4 +376,5 @@ if __name__ == '__main__':
     utest_MatchingEngine_4()
     utest_MatchingEngine_5()
     utest_MatchingEngine_14()
+    utest_MatchingEngine_15()
     

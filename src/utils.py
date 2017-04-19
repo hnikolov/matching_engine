@@ -9,8 +9,30 @@ def createOrders():
     o1 = Order(ASK, 9191,  32.54, 1000, 100) # iceberg
     return o, o1
 
+
+def createBook():
+    bo, ao = createOrders()
+    b = Book()
+
+    b.addOrder( order=bo )
+    b.addOrder( order=ao )
+
+    b.addOrder(BID, 199, 54.12, 1000, 100) # iceberg
+    b.addOrder(BID, 111, 54.12,  100, 100)
     
-def checkOrder(order, isBuy, isIceberg, orderId, price, quantity, peakSize, reloadPeakSize):
+    b.addOrder(ASK, 191,  45.23,  100, 100)
+    b.addOrder(ASK, 777,  32.54,  100, 100)
+    b.addOrder(ASK, 991,  22.21,  100, 100)
+    b.addOrder(ASK, 181, 222.22,  200, 100) # iceberg
+    b.addOrder(ASK, 888,  32.54,  100, 100)
+    b.addOrder(ASK,  33,  25.18,  100, 100)
+    b.addOrder(ASK, 111,  25.18,  100, 100)
+
+    return b
+
+# --------------------------------------------------------------------------
+
+def checkOrder(order, isBuy, isIceberg, orderId, price, quantity, peakSize):
     assert order.isBuy          == isBuy,              "Wrong isBuy value"
     assert order.isIceberg      == isIceberg,          "Wrong isIceberg value"
     assert order.orderId        == orderId,            "Wrong orderId value"
@@ -49,24 +71,3 @@ def checkSides( side_1, side_2):
 def checkBooks( book_1, book_2 ):
     checkSides( book_1.bid, book_2.bid )
     checkSides( book_1.ask, book_2.ask )
-
-
-def createBook():
-    bo, ao = createOrders()
-    b = Book()
-
-    b.addOrder( order=bo )
-    b.addOrder( order=ao )
-
-    b.addOrder(BID, 199, 54.12, 1000, 100) # iceberg
-    b.addOrder(BID, 111, 54.12,  100, 100)
-    
-    b.addOrder(ASK, 191,  45.23,  100, 100)
-    b.addOrder(ASK, 777,  32.54,  100, 100)
-    b.addOrder(ASK, 991,  22.21,  100, 100)
-    b.addOrder(ASK, 181, 222.22,  200, 100) # iceberg
-    b.addOrder(ASK, 888,  32.54,  100, 100)
-    b.addOrder(ASK,  33,  25.18,  100, 100)
-    b.addOrder(ASK, 111,  25.18,  100, 100)
-
-    return b

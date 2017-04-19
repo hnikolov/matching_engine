@@ -88,7 +88,7 @@ class MatchingEngine(object):
                 return myQty
             
             else: # partial fill of incoming order (order.quantity < myQty)
-                print "E2", orderId, "with", order.orderId, order.price, order.peakSize
+                print "E2", orderId, "with", order.orderId, order.price, order.quantity
                 myQty -= order.quantity # matched quantity
                 order.quantity = 0      # marked to be removed
                 
@@ -124,11 +124,12 @@ class MatchingEngine(object):
                 
         for order in list(level.icebergs): # Note: list() due to RuntimeError: deque mutated during iteration
             
-            if order.quantity == 0: # Complete fill
+            if order.quantity == 0: # Complete fill: Remove the order
                 self.myBook.removeOrder( order.orderId )
+                level.removeIceberg( order.orderId )
 
-            else: # replanish visible part 
-                if order.peakSize < order.quantity: # update the quantity accordingly
+            else: # Replanish visible part
+                if order.peakSize < order.quantity: # Update the quantity accordingly
                     order.quantity -= order.peakSize 
 
                 else: # order.peakSize >= quantity
